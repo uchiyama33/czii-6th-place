@@ -1,0 +1,4 @@
+_target_: torch.nn.BCEWithLogitsLoss
+# weight: 
+#   _target_: torch.tensor
+#   data: [1.0, 2.0, 4.0]

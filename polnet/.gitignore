@@ -1,0 +1,23 @@
+#Caches
+*__pycache__*
+*pytest_cache*
+
+# Distribution / packaging
+*.egg-info/
+*.egg
+
+# Virtual environments
+*venv*
+bin
+include
+lib
+lib64
+share
+etc
+
+# Data
+data_generated
+
+# Files
+pyvenv.cfg
+polnet/_version.py

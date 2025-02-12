@@ -1,0 +1,57 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /data: czii
+  - override /model: timm_2_5d_unet_hengck23_classmap
+  - override /model/criterion_classmap: tversky07
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["baseline"]
+
+callbacks:
+  early_stopping:
+    patience: ${trainer.max_epochs}
+
+model:
+  scheduler:
+    num_warmup_steps: 30
+  optimizer:
+    lr: 1e-3
+  # optimize_config:
+  #   mode: target_decay
+  #   target_name: net.encoder
+  #   lr_base: ${model.optimizer.lr}
+  #   lr_decay_coef: 0.1
+  net:
+    model_name: resnet34d
+    grad_checkpointing: false
+    decoder_dim: [256, 128, 64, 32, 16]
+    output_classmap: true
+    output_seg: false
+    output_det: false
+    norm_decoder: ln
+    act_decoder: gelu
+
+data:
+  batch_size: 1
+  transforms_version: 2
+
+trainer:
+  max_epochs: 1000
+  accumulate_grad_batches: 2
+  check_val_every_n_epoch: 5
+
+experiment_name: debug-baseline-classmap_tversky07-hengck23_resnet34d_ln_gelu-ep1000-transV2
+logger:
+  wandb:
+    tags: ${tags}
+    name: ${experiment_name}-fold${data.fold}
+log_dir: ${paths.log_dir}/${task_name}/runs/${experiment_name}
+hydra:
+  run:
+    dir: ${log_dir}

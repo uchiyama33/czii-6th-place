@@ -1,0 +1,74 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /callbacks: default_save20ep
+  - override /data: czii_my_sim
+  - override /model: monai_unet_classmap
+  - override /model/criterion_classmap: dice
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["baseline"]
+
+callbacks:
+  early_stopping:
+    patience: ${trainer.max_epochs}
+
+model:
+  is_kaggle_data: false
+  num_classes: ${data.num_classes}
+  preprocess_version: ${data.preprocess_version}
+  eval_normalize: true
+  scheduler:
+    num_warmup_steps: 10
+  optimizer:
+    lr: 1e-3
+    # weight_decay: 1e-6
+  # optimize_config:
+  #   mode: target_decay
+  #   target_name: net.encoder
+  #   lr_base: ${model.optimizer.lr}
+  #   lr_decay_coef: 0.1
+  net:
+    num_classes: ${data.num_classes}
+    in_chans: 2
+    channels: [48, 96, 192, 384]
+    strides: [2, 2, 2]
+    output_classmap: true
+    output_seg: false
+    output_det: false
+    num_res_units: 1
+    norm: batch
+    num_head_layers: 1
+    norm_head: bn
+  # criterion_seg:
+  #   include_background: false
+
+data:
+  data_dir: ${paths.data_dir}/my_sim_241205
+  num_classes: 11
+  volume_size: [64, 128, 128]
+  batch_size: 4
+  num_crop_samples: 2  # 増やすと1コアでの処理時間が増える
+  transforms_version: 1
+  preprocess_version: 1
+
+trainer:
+  max_epochs: 500
+  accumulate_grad_batches: 2
+  check_val_every_n_epoch: 10
+  gradient_clip_val: 1.0 
+
+experiment_name: 241207-my_sim_241205-classmap_dice-monai_unet_l4_d48_384_res1_head1_bn-s64_128-lr1e-3-grad1-bs4_2_2-ep500-transV1-preV1
+logger:
+  wandb:
+    tags: ${tags}
+    name: ${experiment_name}-fold${data.fold}
+log_dir: ${paths.log_dir}/${task_name}/runs/${experiment_name}
+hydra:
+  run:
+    dir: ${log_dir}

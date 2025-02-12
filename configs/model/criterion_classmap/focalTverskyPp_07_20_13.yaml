@@ -1,0 +1,7 @@
+_target_: src.models.losses.focal_tversky_plusplus.FocalTverskyPlusPlusLoss
+include_background: true
+sigmoid: true
+alpha: 0.3
+beta: 0.7
+gamma_pp: 2.0  # 論文だと2~3あたり
+gamma_focal: 1.33  # 論文だと4/3~2あたり

@@ -1,0 +1,22 @@
+defaults:
+  - model_checkpoint
+  - early_stopping
+  - model_summary
+  - rich_progress_bar
+  - lr_monitor
+  - _self_
+
+model_checkpoint:
+  dirpath: ${paths.output_dir}/checkpoints
+  filename: "fold${data.fold}_epoch_{epoch:03d}"
+  save_top_k: -1
+  every_n_epochs: 20
+  auto_insert_metric_name: False
+
+early_stopping:
+  monitor: "val/loss"
+  patience: 50
+  mode: "min"
+
+model_summary:
+  max_depth: -1

@@ -1,0 +1,70 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  # - override /callbacks: default_saveLast
+  - override /data: czii
+  - override /model: monai_segresnet_classmap
+  - override /model/criterion_classmap: focalTverskyPp_07_20_13
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["baseline"]
+
+callbacks:
+  early_stopping:
+    patience: ${trainer.max_epochs}
+
+model:
+  pretrained_ckpt_path: /workspace/logs/train/runs/250111-my_sim_241221-focalTverskyPp-monai_segresnet_f16_bn_d1224-s64_128-lr1e-3-grad1-bs4_2_2-ep300-transV3-preV4/checkpoints/fold0_epoch_299.ckpt
+  remove_pretrained_head: false
+  num_classes: ${data.num_classes}
+  preprocess_version: ${data.preprocess_version}
+  eval_normalize: true
+  scheduler:
+    num_warmup_steps: 10
+  optimizer:
+    lr: 1e-3
+    # weight_decay: 1e-6
+  optimize_config:
+    mode: target_decay
+    target_names: 
+      - net.convInit
+      - net.down_layers
+      # - net.up_layers
+    lr_base: ${model.optimizer.lr}
+    lr_decay_coef: 0.2
+  net:
+    num_classes: ${data.num_classes}
+    in_chans: 1
+    init_filters: 16
+    blocks_down: [1, 2, 2, 4]
+    blocks_up: [1, 1, 1]
+    norm: batch
+
+data:
+  volume_size: [64, 128, 128]
+  batch_size: 4
+  num_crop_samples: 2
+  transforms_version: 3
+  preprocess_version: 4
+  maps_name: particle_hard_masks_r0.5
+
+trainer:
+  max_epochs: 100
+  accumulate_grad_batches: 2
+  check_val_every_n_epoch: 5
+  # gradient_clip_val: 1.0 
+
+experiment_name: 250111-focalTverskyPp-pretrained_241221_299-monai_segresnet_f16_bn_d1224-s64_128-lr1e-3_decay02e-bs4_2_2-ep100-transV3-preV4
+logger:
+  wandb:
+    tags: ${tags}
+    name: ${experiment_name}-fold${data.fold}
+log_dir: ${paths.log_dir}/${task_name}/runs/${experiment_name}
+hydra:
+  run:
+    dir: ${log_dir}

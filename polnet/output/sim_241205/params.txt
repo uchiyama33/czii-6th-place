@@ -1,0 +1,15 @@
+use_pns_list = ['/home/tomo/kaggle/polnet/data/in_10A/1fa2_10A.pns', '/home/tomo/kaggle/polnet/data/in_10A/6cvm_10A.pns', '/home/tomo/kaggle/polnet/data/in_10A/6z6u_10A.pns', '/home/tomo/kaggle/polnet/data/in_10A/8q3f_10A.pns', '/home/tomo/kaggle/polnet/data/in_10A/6utj_10A.pns', '/home/tomo/kaggle/polnet/data/in_10A/5mrc_10A.pns', '/home/tomo/kaggle/polnet/data/in_10A/4v4r_50S_10A.pns', '/home/tomo/kaggle/polnet/data/in_10A/4cr2_10A.pns', '/home/tomo/kaggle/polnet/data/in_10A/2uv8_10A.pns']
+use_mbs_list = ['/home/tomo/kaggle/polnet/data/in_mbs/sphere.mbs']
+use_hns_list = ['/home/tomo/kaggle/polnet/data/in_helix/mt.hns']
+ntomos = 100
+voi_shape = (630, 630, 200)
+voi_off = ((15, 614), (15, 614), (5, 195))
+voi_size = 10
+mmer_tries = 20
+pmer_tries = 100
+surf_dec = 0.9
+tilt_angs = range(-45, 46, 3)
+detector_snr = [0.2, 3.0]
+malign_mn = 1
+malign_mx = 5
+malign_sg = 0.5

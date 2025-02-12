@@ -1,0 +1,32 @@
+defaults:
+  - criterion_classmap: dice
+  - criterion_det: dice
+  - criterion_seg: dice
+
+_target_: src.models.czii_module_classmap.CZIILitModule
+
+optimizer:
+  _target_: torch.optim.AdamW
+  _partial_: true
+  lr: 0.001
+  weight_decay: 1e-3
+  
+optimize_config:
+  mode: normal
+
+scheduler:
+  _target_: transformers.get_cosine_schedule_with_warmup
+  _partial_: true
+  num_warmup_steps: 5
+  num_training_steps: ${trainer.max_epochs}
+
+net:
+  _target_: src.models.components.monai_segresnet.Net
+  num_classes: 6
+  in_chans: 1
+  init_filters: 8
+  blocks_down: [1, 2, 2, 4]
+  blocks_up: [1, 1, 1]
+
+# compile model for faster training with pytorch 2.0
+compile: false

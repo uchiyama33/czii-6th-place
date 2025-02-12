@@ -1,0 +1,33 @@
+defaults:
+  - criterion_classmap: bce
+  - criterion_det: dice
+  - criterion_seg: dice
+
+_target_: src.models.czii_module_seg.CZIILitModule
+
+optimizer:
+  _target_: torch.optim.AdamW
+  _partial_: true
+  lr: 0.001
+  weight_decay: 1e-3
+  
+optimize_config:
+  mode: normal
+
+scheduler:
+  _target_: transformers.get_cosine_schedule_with_warmup
+  _partial_: true
+  num_warmup_steps: 5
+  num_training_steps: ${trainer.max_epochs}
+
+net:
+  _target_: src.models.components.timm_2_5d_unet_hengck23.Net
+  model_name: resnet34d
+  num_classes: ${data.num_classes}
+  pretrained: true
+  output_classmap: false
+  output_seg: true
+  output_det: false
+
+# compile model for faster training with pytorch 2.0
+compile: false

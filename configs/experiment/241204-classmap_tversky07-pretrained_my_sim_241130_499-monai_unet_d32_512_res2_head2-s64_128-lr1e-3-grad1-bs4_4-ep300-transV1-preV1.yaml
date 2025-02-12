@@ -1,0 +1,69 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /callbacks: default_saveLast
+  - override /data: czii
+  - override /model: monai_unet_classmap
+  - override /model/criterion_classmap: tversky07
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["baseline"]
+
+callbacks:
+  early_stopping:
+    patience: ${trainer.max_epochs}
+
+model:
+  pretrained_ckpt_path: /workspace/logs/train/runs/241203-my_sim_241130-seg_dice-monai_unet_d32_512_res2_head2-s64_128-lr1e-3-grad1-bs4_4-ep500-transV1-preV1/checkpoints/fold0_epoch_499.ckpt
+  num_classes: ${data.num_classes}
+  preprocess_version: ${data.preprocess_version}
+  eval_normalize: true
+  scheduler:
+    num_warmup_steps: 20
+  optimizer:
+    lr: 1e-3
+    # weight_decay: 1e-6
+  # optimize_config:
+  #   mode: target_decay
+  #   target_name: net.encoder
+  #   lr_base: ${model.optimizer.lr}
+  #   lr_decay_coef: 0.1
+  net:
+    num_classes: ${data.num_classes}
+    in_chans: 2
+    channels: [32, 64, 128, 256, 512]
+    output_classmap: true
+    output_seg: false
+    output_det: false
+    num_res_units: 2
+    num_head_layers: 2
+  # criterion_seg:
+  #   include_background: false
+
+data:
+  volume_size: [64, 128, 128]
+  batch_size: 4
+  num_crop_samples: 1  # 増やすと1コアでの処理時間が増える
+  transforms_version: 1
+  preprocess_version: 1
+
+trainer:
+  max_epochs: 300
+  accumulate_grad_batches: 4
+  check_val_every_n_epoch: 10
+  gradient_clip_val: 1.0 
+
+experiment_name: 241204-classmap_tversky07-pretrained_my_sim_241130_499-monai_unet_d32_512_res2_head2-s64_128-lr1e-3-grad1-bs4_4-ep300-transV1-preV1
+logger:
+  wandb:
+    tags: ${tags}
+    name: ${experiment_name}-fold${data.fold}
+log_dir: ${paths.log_dir}/${task_name}/runs/${experiment_name}
+hydra:
+  run:
+    dir: ${log_dir}

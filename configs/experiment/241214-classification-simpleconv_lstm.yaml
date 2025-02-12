@@ -1,0 +1,62 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /callbacks: default_save20ep
+  - override /data: czii_classification
+  - override /model: classification_simpleconv_lstm
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["baseline"]
+
+callbacks:
+  early_stopping:
+    patience: ${trainer.max_epochs}
+
+model:
+  num_classes: 7
+  preprocess_version: ${data.preprocess_version}
+  eval_normalize: true
+  scheduler:
+    num_warmup_steps: 0
+  optimizer:
+    lr: 1e-3
+    # weight_decay: 1e-6
+  # optimize_config:
+  #   mode: target_decay
+  #   target_name: net.encoder
+  #   lr_base: ${model.optimizer.lr}
+  #   lr_decay_coef: 0.1
+  net:
+    num_classes: ${model.num_classes}
+    in_chans: 2
+
+data:
+  volume_size: [15, 45, 45]
+  batch_size: 256
+  transforms_version: 1
+  preprocess_version: 1
+  # num_workers: 12
+  debug: true
+
+
+trainer:
+  max_epochs: 100
+  accumulate_grad_batches: 1
+  check_val_every_n_epoch: 1
+  # gradient_clip_val: 1.0 
+
+experiment_name: 241214-classification-simpleconv_lstm
+logger:
+  wandb:
+    project: czii_classification
+    tags: ${tags}
+    name: ${experiment_name}-fold${data.fold}
+log_dir: ${paths.log_dir}/${task_name}/runs/${experiment_name}
+hydra:
+  run:
+    dir: ${log_dir}

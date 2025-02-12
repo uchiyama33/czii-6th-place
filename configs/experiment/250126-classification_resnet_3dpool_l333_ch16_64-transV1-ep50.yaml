@@ -1,0 +1,71 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /callbacks: default_saveLast
+  - override /data: czii_classification
+  - override /model: classification_resnet_3dpool
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["baseline"]
+
+callbacks:
+  early_stopping:
+    patience: ${trainer.max_epochs}
+
+optimized_metric: "test/fbeta"
+
+model:
+  # pretrained_ckpt_path: /workspace/logs/train/runs/250107-classification-my_sim_241221-simpleconv_lstm-ep30/checkpoints/fold0_epoch_029.ckpt
+  # remove_pretrained_head: false
+  num_classes: 7
+  preprocess_version: null
+  eval_normalize: true
+  scheduler:
+    num_warmup_steps: 0
+  optimizer:
+    lr: 1e-3
+    # weight_decay: 1e-6
+  # optimize_config:
+  #   mode: target_decay
+  #   target_name: net.encoder
+  #   lr_base: ${model.optimizer.lr}
+  #   lr_decay_coef: 0.1
+  net:
+    num_classes: ${model.num_classes}
+    in_chans: 1
+    num_layers: [3, 3, 3]
+    channels: [16, 32, 64]
+    depth_pool_sizes: [1, 1, 2, 2]
+
+
+data:
+  data_dir: ${paths.data_dir}/czii-cryo-et-object-identification/crop_classification-preV4.1-250107-s15_75_75
+  volume_size: [9, 45, 45]
+  batch_size: 256
+  transforms_version: 1
+  preprocess_version: 4.1
+  # num_workers: 12
+  debug: true
+
+
+trainer:
+  max_epochs: 50
+  accumulate_grad_batches: 1
+  check_val_every_n_epoch: 1
+  # gradient_clip_val: 1.0 
+
+experiment_name: 250126-classification_resnet_3dpool_l333_ch16_64-transV1-ep50
+logger:
+  wandb:
+    project: czii_classification
+    tags: ${tags}
+    name: ${experiment_name}-fold${data.fold}
+log_dir: ${paths.log_dir}/${task_name}/runs/${experiment_name}
+hydra:
+  run:
+    dir: ${log_dir}

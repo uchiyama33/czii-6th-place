@@ -1,0 +1,5 @@
+_target_: monai.losses.TverskyLoss
+include_background: true
+sigmoid: true
+alpha: 0.3
+beta: 0.7

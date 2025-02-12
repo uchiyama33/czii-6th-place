@@ -1,0 +1,36 @@
+defaults:
+  - criterion_classmap: dice
+  - criterion_det: dice
+  - criterion_seg: dice
+
+_target_: src.models.czii_module_seg.CZIILitModule
+
+optimizer:
+  _target_: torch.optim.AdamW
+  _partial_: true
+  lr: 0.001
+  weight_decay: 1e-3
+  
+optimize_config:
+  mode: normal
+
+scheduler:
+  _target_: transformers.get_cosine_schedule_with_warmup
+  _partial_: true
+  num_warmup_steps: 5
+  num_training_steps: ${trainer.max_epochs}
+
+net:
+  _target_: src.models.components.monai_swinunetr.Net
+  num_classes: 6
+  img_size: ${data.volume_size}
+  feature_size: 12
+  out_channels: 16
+  output_classmap: false
+  output_seg: true
+  output_det: false
+  norm_head: bn
+  act_head: relu
+
+# compile model for faster training with pytorch 2.0
+compile: false

@@ -1,0 +1,75 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  # - override /callbacks: default_saveLast
+  - override /data: czii
+  - override /model: timm_3d_unet_hengck23_classmap
+  - override /model/criterion_classmap: focalTverskyPp_07_20_13
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["baseline"]
+
+callbacks:
+  early_stopping:
+    patience: ${trainer.max_epochs}
+
+model:
+  pretrained_ckpt_path: /workspace/logs/train/runs/241228-my_sim_241221-classmap_focalTverskyPp_07_20_13-3d_hengck23_tf_efficientnetv2_b2_d64_256_scratch-s64_128-scratch-lr1e-3-grad1-bs4_2_2-ep300-transV3-preV4/checkpoints/fold0_epoch_299.ckpt
+  remove_pretrained_head: false
+  num_classes: ${data.num_classes}
+  preprocess_version: ${data.preprocess_version}
+  eval_normalize: true
+  scheduler:
+    num_warmup_steps: 5
+  optimizer:
+    lr: 1e-3
+    # weight_decay: 1e-6
+  # optimize_config:
+  #   mode: target_decay
+  #   target_names: 
+  #     - net.encoder
+  #     - net.decoder
+  #   lr_base: ${model.optimizer.lr}
+  #   lr_decay_coef: 0.5
+  net:
+    num_classes: ${data.num_classes}
+    in_chans: 1
+    model_name: tf_efficientnetv2_b2.in1k
+    grad_checkpointing: true
+    decoder_dim: [256, 128, 64, 64, 64]
+    output_classmap: true
+    output_seg: false
+    output_det: false
+    norm_decoder: bn
+    act_decoder: relu
+    num_head_layers: 0
+  # criterion_seg:
+  #   include_background: false
+
+data:
+  volume_size: [64, 128, 128]
+  batch_size: 4
+  num_crop_samples: 2
+  transforms_version: 3
+  preprocess_version: 4
+
+trainer:
+  max_epochs: 100
+  accumulate_grad_batches: 2
+  check_val_every_n_epoch: 5
+  # gradient_clip_val: 1.0 
+
+experiment_name: 241228-classmap_focalTverskyPp_07_20_13-pretrained_my_sim_241221_299_wHead-3d_hengck23_tf_efficientnetv2_b2_d64_256-s64_128-lr1e-3-bs4_2_2-ep100-transV3-preV4
+logger:
+  wandb:
+    tags: ${tags}
+    name: ${experiment_name}-fold${data.fold}
+log_dir: ${paths.log_dir}/${task_name}/runs/${experiment_name}
+hydra:
+  run:
+    dir: ${log_dir}
