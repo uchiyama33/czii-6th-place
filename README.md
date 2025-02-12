@@ -34,7 +34,7 @@ All required Python packages are listed in the `pip_packages/requirements.txt` f
 
 ## Inference
 
-The submission notebook is `czii-submit.ipynb`.
+The submission notebook is `czii-submission-6th-place.ipynb`.
 
 ## Acknowledgements
 We extend our sincere gratitude to the creators of the following repositories and notebooks, whose outstanding work significantly contributed to our project:
