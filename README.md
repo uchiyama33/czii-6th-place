@@ -1,10 +1,10 @@
 # CZII - CryoET Object Identification: 6th Place
 
 ## Environment
-This solution uses the following Docker image:
+This solution was developed using the following Docker image:
  - gcr.io/kaggle-gpu-images/python:v153
 
-All required Python packages are listed in the `pip_packages/requirements.txt` file.
+All required Python packages can be found in `pip_packages/requirements.txt`.
 
 ## Data
 - Place the competition dataset in the `data/` directory.
@@ -13,9 +13,9 @@ All required Python packages are listed in the `pip_packages/requirements.txt` f
   cd src
   python prepare_data.py
   ```
-- Create simulated data with the following commands
+- Create simulated data using the following commands
   - The three simulation settings are stored under `polnet/output`.
-  - Move the created simulated data under the `data/` directory.
+  - Move the generated simulated data under the `data/` directory.
   ```
   cd polnet/gui
   python gen_dataset_for_czii.py
@@ -26,15 +26,12 @@ All required Python packages are listed in the `pip_packages/requirements.txt` f
   bash train.sh
   ```
 
-<!-- ## Trained Weights
-[https://www.kaggle.com/datasets/tomoon33/isic2024-training-logs/](https://www.kaggle.com/datasets/tomoon33/isic2024-training-logs/) -->
-
 ## Tuning Threshholds and Analysis of Results in CV
-`notebooks/tune_thresh.py`
+Use the `notebooks/tune_thresh.py` script to tune thresholds and analyze cross-validation results.
 
 ## Inference
-
-The submission notebook is `czii-submission-6th-place.ipynb`.
+- The sample notebook that converts a PyTorch model to a TensorRT engine is `czii-convert-trt-250101-hard-r05-ftp-pre-1221-env2b2.ipynb`.
+- The final submission is generated in the `czii-submission-6th-place.ipynb` notebook.
 
 ## Acknowledgements
 We extend our sincere gratitude to the creators of the following repositories and notebooks, whose outstanding work significantly contributed to our project:
